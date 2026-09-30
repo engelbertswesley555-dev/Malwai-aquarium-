@@ -36,6 +36,11 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 .page{display:none}.page.active{display:block}
 </style>
 
+
+<style>
+.private-maint-note{margin-top:8px;width:100%;box-sizing:border-box;min-height:70px;padding:10px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:inherit}
+.local-note-label{display:block;font-size:.9em;margin-top:8px;opacity:.85}.primary-btn{cursor:pointer}.private-maint-note:focus{outline:2px solid #1d76a8}
+</style>
 </head>
 <body>
 <header><h1>🐠 Malawi Aquarium</h1><p class="sub">Mijn aquarium · ±450 liter</p></header>
@@ -71,9 +76,47 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 </section>
 
 <section id="maintenance"><h2>🧹 Onderhoud</h2>
-<div class="card"><b>Waterwissel</b><p class="muted">Registreer datum en percentage.</p><button onclick="addEvent('Waterwissel')">Gedaan</button></div>
-<div class="card"><b>Filter controleren</b><p class="muted">Onderhoudsmoment bijhouden.</p><button onclick="addEvent('Filteronderhoud')">Gedaan</button></div>
-<div class="card"><b>Aquarium schoonmaken</b><button onclick="addEvent('Aquarium schoonmaak')">Gedaan</button></div>
+
+<div class="card">
+  <b>💧 Waterwissel</b>
+  <p class="muted">Registreer het onderhoud en bewaar hier je eigen privé-opmerking.</p>
+  <button onclick="addEvent('Waterwissel')">Gedaan</button>
+  <label class="local-note-label">🔒 Privé-opmerking</label>
+  <textarea id="maintNoteWater" class="private-maint-note" placeholder="Bijvoorbeeld: 120 liter ververst, vissen waren actief..."></textarea>
+  <button type="button" onclick="saveMaintenanceNote('water','maintNoteWater','maintSavedWater')" style="margin-top:8px">💾 Opmerking opslaan</button>
+  <span id="maintSavedWater" class="muted" style="margin-left:8px"></span>
+</div>
+
+<div class="card">
+  <b>🧽 Filter controleren</b>
+  <p class="muted">Onderhoudsmoment bijhouden.</p>
+  <button onclick="addEvent('Filteronderhoud')">Gedaan</button>
+  <label class="local-note-label">🔒 Privé-opmerking</label>
+  <textarea id="maintNoteFilter" class="private-maint-note" placeholder="Bijvoorbeeld: spons uitgespoeld met aquariumwater..."></textarea>
+  <button type="button" onclick="saveMaintenanceNote('filter','maintNoteFilter','maintSavedFilter')" style="margin-top:8px">💾 Opmerking opslaan</button>
+  <span id="maintSavedFilter" class="muted" style="margin-left:8px"></span>
+</div>
+
+<div class="card">
+  <b>🧹 Aquarium schoonmaken</b>
+  <p class="muted">Ruiten, bodem en andere schoonmaakwerkzaamheden.</p>
+  <button onclick="addEvent('Aquarium schoonmaak')">Gedaan</button>
+  <label class="local-note-label">🔒 Privé-opmerking</label>
+  <textarea id="maintNoteClean" class="private-maint-note" placeholder="Bijvoorbeeld: ruiten schoongemaakt en bodem licht afgeheveld..."></textarea>
+  <button type="button" onclick="saveMaintenanceNote('clean','maintNoteClean','maintSavedClean')" style="margin-top:8px">💾 Opmerking opslaan</button>
+  <span id="maintSavedClean" class="muted" style="margin-left:8px"></span>
+</div>
+
+<div class="card">
+  <b>🔧 Overig onderhoud</b>
+  <p class="muted">Voor onderhoud dat niet hierboven staat.</p>
+  <button onclick="addEvent('Overig onderhoud')">Gedaan</button>
+  <label class="local-note-label">🔒 Privé-opmerking</label>
+  <textarea id="maintNoteOther" class="private-maint-note" placeholder="Eigen onderhoudsnotitie..."></textarea>
+  <button type="button" onclick="saveMaintenanceNote('other','maintNoteOther','maintSavedOther')" style="margin-top:8px">💾 Opmerking opslaan</button>
+  <span id="maintSavedOther" class="muted" style="margin-left:8px"></span>
+</div>
+
 <div class="card"><b>Onderhoudsgeschiedenis</b><div id="maintenanceHistory" class="muted">Nog niets geregistreerd.</div></div>
 </section>
 
@@ -88,7 +131,7 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 <div class="card"><b>📊 Geschiedenis</b><div id="allHistory" class="muted">Nog geen gebeurtenissen.</div></div>
 </section>
 
-<section id="page-private" class="page">
+<section id="private">
   <div class="section-head">
     <div>
       <h2>Mijn privé</h2>
@@ -100,14 +143,14 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
     <h3>📸 Privéfoto's</h3>
     <p class="muted">Foto's die je hier toevoegt worden lokaal in deze browser opgeslagen. Ze worden niet naar GitHub of naar deze website geüpload.</p>
     <label class="primary-btn" for="privatePhotoInput">Foto toevoegen</label>
-    <input id="privatePhotoInput" type="file" accept="image/*" multiple hidden>
+    <input id="privatePhotoInput" type="file" accept="image/*" multiple hidden capture="environment">
     <div id="privatePhotos" class="photo-grid"></div>
     <p id="privatePhotoEmpty" class="muted">Nog geen privéfoto's.</p>
   </div>
 
   <div class="card">
     <h3>📝 Privénotitie</h3>
-    <textarea id="privateNote" rows="7" placeholder="Bijvoorbeeld: gedrag, aankoop, bijzondere observatie..."></textarea>
+    <textarea id="privateNote" rows="7" style="width:100%;box-sizing:border-box;resize:vertical;" placeholder="Bijvoorbeeld: gedrag, aankoop, bijzondere observatie..."></textarea>
     <button class="primary-btn" id="savePrivateNote">Notitie opslaan</button>
     <p id="privateSaved" class="muted"></p>
   </div>
@@ -139,6 +182,36 @@ function show(id,btn){document.querySelectorAll('section').forEach(s=>s.classLis
 function saveWater(){let x={date:new Date().toLocaleString('nl-NL'),temp:temp.value,ph:ph.value,kh:kh.value,gh:gh.value,no2:no2.value,no3:no3.value};let a=get('water');a.unshift(x);set('water',a);[temp,ph,kh,gh,no2,no3].forEach(e=>e.value='');render();alert('Watermeting opgeslagen');}
 function addEvent(name){let a=get('events');a.unshift({name,date:new Date().toLocaleString('nl-NL')});set('events',a);render();alert(name+' opgeslagen');}
 function saveFood(){let v=food.value.trim();if(!v)return;let a=get('food');a.unshift({name:v,date:new Date().toLocaleString('nl-NL')});set('food',a);food.value='';render();alert('Voermoment opgeslagen');}
+
+const MAINT_NOTE_KEY='malawi_local_maintenance_notes_v2';
+function getMaintenanceNotes(){
+  try{return JSON.parse(localStorage.getItem(MAINT_NOTE_KEY)||'{}')}catch(e){return {}}
+}
+function saveMaintenanceNote(key, elementId, savedId){
+  const el=document.getElementById(elementId);
+  if(!el)return;
+  const notes=getMaintenanceNotes();
+  notes[key]=el.value;
+  localStorage.setItem(MAINT_NOTE_KEY, JSON.stringify(notes));
+  const saved=document.getElementById(savedId);
+  if(saved){
+    saved.textContent='Opgeslagen ✓';
+    setTimeout(()=>saved.textContent='',2000);
+  }
+}
+function loadMaintenanceNotes(){
+  const notes=getMaintenanceNotes();
+  const map={
+    water:'maintNoteWater',
+    filter:'maintNoteFilter',
+    clean:'maintNoteClean',
+    other:'maintNoteOther'
+  };
+  Object.entries(map).forEach(([key,id])=>{
+    const el=document.getElementById(id);
+    if(el)el.value=notes[key]||'';
+  });
+}
 function render(){
 let w=get('water'),e=get('events'),f=get('food');
 lastWater.textContent=w.length? w[0].date+' · '+(w[0].temp?w[0].temp+'°C':''): 'Nog geen meting opgeslagen.';
@@ -147,6 +220,7 @@ maintenanceHistory.innerHTML=e.length?e.slice(0,10).map(x=>`<div class="item">${
 foodHistory.innerHTML=f.length?f.slice(0,10).map(x=>`<div class="item">${x.name}<br><small>${x.date}</small></div>`).join(''):'Nog niets geregistreerd.';
 allHistory.innerHTML=[...e.map(x=>`<div class="item">${x.name}<br><small>${x.date}</small></div>`),...f.map(x=>`<div class="item">Voeding: ${x.name}<br><small>${x.date}</small></div>`)].slice(0,20).join('')||'Nog geen gebeurtenissen.';
 }
+loadMaintenanceNotes();
 render();
 if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js")); }
 </script>
@@ -292,6 +366,8 @@ if ("serviceWorker" in navigator) { window.addEventListener("load", () => naviga
   renderPhotos();
 })();
 </script>
+
+
 
 </body>
 </html>
