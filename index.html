@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071b2b">
+<title>Malawi Aquarium</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071b2b;color:#eef7ff;font-family:system-ui,-apple-system,sans-serif}
+header{padding:22px 18px 14px;background:linear-gradient(160deg,#0d3a59,#071b2b);position:sticky;top:0;z-index:2}
+h1,h2,p{margin:0}h1{font-size:24px}.sub{opacity:.75;margin-top:4px}
+main{padding:16px 16px 90px;max-width:700px;margin:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#102b40;border:1px solid #1c4661;border-radius:18px;padding:16px;margin-bottom:12px}
+.big{font-size:28px;font-weight:700}.label{opacity:.7;font-size:13px;margin-top:4px}
+button,input{font:inherit}button{border:0;border-radius:13px;padding:12px 15px;background:#1d76a8;color:white;font-weight:650}
+input{width:100%;padding:11px;border-radius:10px;border:1px solid #2b5972;background:#081e2f;color:white;margin:5px 0 10px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#081b2a;border-top:1px solid #21465d;display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:3}
+nav button{background:transparent;padding:8px 5px;font-size:11px;opacity:.75}nav button.active{opacity:1;background:#124767}
+section{display:none}section.active{display:block}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.item{padding:12px 0;border-bottom:1px solid #20445a}.item:last-child{border:0}
+small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
+</style>
+</head>
+<body>
+<header><h1>🐠 Malawi Aquarium</h1><p class="sub">Mijn aquarium · ±450 liter</p></header>
+<main>
+<section id="home" class="active">
+<h2>Dashboard</h2>
+<div class="grid">
+<div class="card"><div class="big">23</div><div class="label">Vissen</div></div>
+<div class="card"><div class="big">450 L</div><div class="label">Bruto inhoud</div></div>
+</div>
+<div class="card"><div class="row"><b>Aquarium</b><span>151 × 50 × 60 cm</span></div></div>
+<div class="card"><b>Visbestand</b><div class="item">Aulonocara · 15 <small>4 ♂ · 11 ♀</small></div><div class="item">Lake Victoria sauvagei · 1 <small>♂</small></div><div class="item">Synodontis · 7 <small>geslacht onbekend</small></div></div>
+<div class="card"><b>Laatste watermeting</b><p class="muted" id="lastWater">Nog geen meting opgeslagen.</p></div>
+</section>
+
+<section id="fish"><h2>🐟 Vissen</h2>
+<div class="card"><b>Aulonocara</b><p>15 vissen · 4 mannen · 11 vrouwen</p></div>
+<div class="card"><b>Lake Victoria sauvagei</b><p>1 vis · man</p></div>
+<div class="card"><b>Synodontis</b><p>7 vissen · geslacht onbekend</p></div>
+<p class="muted">Later kunnen we iedere vis een eigen profiel, foto en notities geven.</p>
+</section>
+
+<section id="water"><h2>💧 Waterwaarden</h2>
+<div class="card">
+<label>Temperatuur °C<input id="temp" type="number" step="0.1"></label>
+<label>pH<input id="ph" type="number" step="0.1"></label>
+<label>KH<input id="kh" type="number" step="0.1"></label>
+<label>GH<input id="gh" type="number" step="0.1"></label>
+<label>NO₂<input id="no2" type="number" step="0.01"></label>
+<label>NO₃<input id="no3" type="number" step="0.1"></label>
+<button onclick="saveWater()">Meting opslaan</button>
+</div><div class="card"><b>Historie</b><div id="waterHistory" class="muted">Nog geen metingen.</div></div>
+</section>
+
+<section id="maintenance"><h2>🧹 Onderhoud</h2>
+<div class="card"><b>Waterwissel</b><p class="muted">Registreer datum en percentage.</p><button onclick="addEvent('Waterwissel')">Gedaan</button></div>
+<div class="card"><b>Filter controleren</b><p class="muted">Onderhoudsmoment bijhouden.</p><button onclick="addEvent('Filteronderhoud')">Gedaan</button></div>
+<div class="card"><b>Aquarium schoonmaken</b><button onclick="addEvent('Aquarium schoonmaak')">Gedaan</button></div>
+<div class="card"><b>Onderhoudsgeschiedenis</b><div id="maintenanceHistory" class="muted">Nog niets geregistreerd.</div></div>
+</section>
+
+<section id="feeding"><h2>🍽️ Voeding</h2>
+<div class="card"><label>Wat heb je gevoerd?<input id="food" placeholder="Bijv. vlokken / granulaat"></label><button onclick="saveFood()">Voermoment opslaan</button></div>
+<div class="card"><b>Voedingsgeschiedenis</b><div id="foodHistory" class="muted">Nog niets geregistreerd.</div></div>
+</section>
+
+<section id="more"><h2>🥚 Kweek & geschiedenis</h2>
+<div class="card"><b>Kweek</b><p class="muted">Kweekmomenten, jongen en ontwikkelingen kunnen hier worden bijgehouden.</p><button onclick="addEvent('Kweeknotitie')">Notitie toevoegen</button></div>
+<div class="card"><b>📸 Foto's & notities</b><p class="muted">Deze functie kunnen we in de volgende versie uitbreiden met foto's per vis.</p></div>
+<div class="card"><b>📊 Geschiedenis</b><div id="allHistory" class="muted">Nog geen gebeurtenissen.</div></div>
+</section>
+</main>
+
+<nav>
+<button class="active" onclick="show('home',this)">🏠<br>Home</button>
+<button onclick="show('fish',this)">🐟<br>Vissen</button>
+<button onclick="show('water',this)">💧<br>Water</button>
+<button onclick="show('maintenance',this)">🧹<br>Onderhoud</button>
+<button onclick="show('feeding',this)">🍽️<br>Voeding</button>
+<button onclick="show('more',this)">➕<br>Meer</button>
+</nav>
+
+<script>
+const get=(k,d=[])=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const set=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+function show(id,btn){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render()}
+function saveWater(){let x={date:new Date().toLocaleString('nl-NL'),temp:temp.value,ph:ph.value,kh:kh.value,gh:gh.value,no2:no2.value,no3:no3.value};let a=get('water');a.unshift(x);set('water',a);[temp,ph,kh,gh,no2,no3].forEach(e=>e.value='');render();alert('Watermeting opgeslagen');}
+function addEvent(name){let a=get('events');a.unshift({name,date:new Date().toLocaleString('nl-NL')});set('events',a);render();alert(name+' opgeslagen');}
+function saveFood(){let v=food.value.trim();if(!v)return;let a=get('food');a.unshift({name:v,date:new Date().toLocaleString('nl-NL')});set('food',a);food.value='';render();alert('Voermoment opgeslagen');}
+function render(){
+let w=get('water'),e=get('events'),f=get('food');
+lastWater.textContent=w.length? w[0].date+' · '+(w[0].temp?w[0].temp+'°C':''): 'Nog geen meting opgeslagen.';
+waterHistory.innerHTML=w.length?w.slice(0,10).map(x=>`<div class="item">${x.date}<br><small>Temp ${x.temp||'—'} · pH ${x.ph||'—'} · KH ${x.kh||'—'} · GH ${x.gh||'—'} · NO₂ ${x.no2||'—'} · NO₃ ${x.no3||'—'}</small></div>`).join(''):'Nog geen metingen.';
+maintenanceHistory.innerHTML=e.length?e.slice(0,10).map(x=>`<div class="item">${x.name}<br><small>${x.date}</small></div>`).join(''):'Nog niets geregistreerd.';
+foodHistory.innerHTML=f.length?f.slice(0,10).map(x=>`<div class="item">${x.name}<br><small>${x.date}</small></div>`).join(''):'Nog niets geregistreerd.';
+allHistory.innerHTML=[...e.map(x=>`<div class="item">${x.name}<br><small>${x.date}</small></div>`),...f.map(x=>`<div class="item">Voeding: ${x.name}<br><small>${x.date}</small></div>`)].slice(0,20).join('')||'Nog geen gebeurtenissen.';
+}
+render();
+</script>
+</body>
+</html>
