@@ -15,7 +15,7 @@ main{padding:16px 16px 90px;max-width:700px;margin:auto}.grid{display:grid;grid-
 .card{background:#102b40;border:1px solid #1c4661;border-radius:18px;padding:16px;margin-bottom:12px}
 .big{font-size:28px;font-weight:700}.label{opacity:.7;font-size:13px;margin-top:4px}
 button,input{font:inherit}button{border:0;border-radius:13px;padding:12px 15px;background:#1d76a8;color:white;font-weight:650}
-input{width:100%;padding:11px;border-radius:10px;border:1px solid #2b5972;background:#081e2f;color:white;margin:5px 0 10px}
+select{font:inherit}input{width:100%;padding:11px;border-radius:10px;border:1px solid #2b5972;background:#081e2f;color:white;margin:5px 0 10px}
 nav{position:fixed;bottom:0;left:0;right:0;background:#081b2a;border-top:1px solid #21465d;display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:3}
 nav button{background:transparent;padding:8px 5px;font-size:11px;opacity:.75}nav button.active{opacity:1;background:#124767}
 section{display:none}section.active{display:block}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
@@ -43,17 +43,25 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 </style>
 </head>
 <body>
-<header><h1>🐠 Malawi Aquarium</h1><p class="sub">Mijn aquarium · ±450 liter</p></header>
+<header><div class="row"><div><h1>🐠 <span data-i18n="appTitle">Malawi Aquarium</span></h1><p class="sub" id="headerSub">Mijn aquarium</p></div><label style="min-width:120px"><small data-i18n="language">Taal</small><select id="languageSelect" style="width:100%;padding:9px;border-radius:10px;background:#081e2f;color:white;border:1px solid #2b5972"><option value="nl">Nederlands</option><option value="de">Deutsch</option><option value="en">English</option></select></label></div></header>
 <main>
 <section id="home" class="active">
-<h2>Dashboard</h2>
+<h2 data-i18n="dashboard">Dashboard</h2>
 <div class="grid">
-<div class="card"><div class="big">23</div><div class="label">Vissen</div></div>
-<div class="card"><div class="big">450 L</div><div class="label">Bruto inhoud</div></div>
+<div class="card"><div class="big" id="dashFishCount">23</div><div class="label" data-i18n="fish">Vissen</div></div>
+<div class="card"><div class="big" id="dashLiters">450 L</div><div class="label" data-i18n="grossVolume">Bruto inhoud</div></div>
 </div>
-<div class="card"><div class="row"><b>Aquarium</b><span>151 × 50 × 60 cm</span></div></div>
-<div class="card"><b>Visbestand</b><div class="item">Aulonocara · 15 <small>4 ♂ · 11 ♀</small></div><div class="item">Lake Victoria sauvagei · 1 <small>♂</small></div><div class="item">Synodontis · 7 <small>geslacht onbekend</small></div></div>
-<div class="card"><b>Laatste watermeting</b><p class="muted" id="lastWater">Nog geen meting opgeslagen.</p></div>
+<div class="card"><div class="row"><b data-i18n="aquarium">Aquarium</b><span id="dashDimensions">151 × 50 × 60 cm</span></div></div>
+<div class="card"><b data-i18n="stock">Visbestand</b><div class="item" id="dashSpecies">Aulonocara · 15 <small>4 ♂ · 11 ♀</small></div><div class="item">Lake Victoria sauvagei · 1 <small>♂</small></div><div class="item">Synodontis · 7 <small>geslacht onbekend</small></div></div>
+<div class="card"><b data-i18n="lastWater">Laatste watermeting</b><p class="muted" id="lastWater">Nog geen meting opgeslagen.</p></div>
+<div class="card"><h3 data-i18n="myAquarium">⚙️ Mijn aquarium</h3><p class="muted" data-i18n="profileIntro">Pas deze gegevens aan voor jouw eigen aquarium. Ze worden alleen op dit apparaat opgeslagen.</p>
+<label><span data-i18n="aquariumName">Naam aquarium</span><input id="profileName" placeholder="Bijv. Mijn Malawi aquarium"></label>
+<div class="grid"><label><span data-i18n="length">Lengte cm</span><input id="profileL" type="number"></label><label><span data-i18n="width">Breedte cm</span><input id="profileW" type="number"></label></div>
+<div class="grid"><label><span data-i18n="height">Hoogte cm</span><input id="profileH" type="number"></label><label><span data-i18n="liters">Inhoud liter</span><input id="profileLiters" type="number"></label></div>
+<label><span data-i18n="fishCount">Aantal vissen</span><input id="profileFish" type="number"></label>
+<label><span data-i18n="aquariumType">Type aquarium</span><input id="profileType" placeholder="Bijv. Malawi"></label>
+<button onclick="saveAquariumProfile()" data-i18n="saveAquarium">💾 Aquariumgegevens opslaan</button>
+</div>
 </section>
 
 <section id="fish"><h2>🐟 Vissen</h2>
@@ -175,6 +183,21 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 
 
 
+<script>
+const LANG_KEY='malawi_language_v1';
+const PROFILE_KEY='malawi_aquarium_profile_v1';
+const I18N={
+ nl:{appTitle:'Malawi Aquarium',dashboard:'Dashboard',fish:'Vissen',grossVolume:'Bruto inhoud',aquarium:'Aquarium',stock:'Visbestand',lastWater:'Laatste watermeting',myAquarium:'⚙️ Mijn aquarium',profileIntro:'Pas deze gegevens aan voor jouw eigen aquarium. Ze worden alleen op dit apparaat opgeslagen.',aquariumName:'Naam aquarium',length:'Lengte cm',width:'Breedte cm',height:'Hoogte cm',liters:'Inhoud liter',fishCount:'Aantal vissen',aquariumType:'Type aquarium',saveAquarium:'💾 Aquariumgegevens opslaan',language:'Taal',saved:'Opgeslagen ✓',navHome:'Home',navFish:'Vissen',navWater:'Water',navMaintenance:'Onderhoud',navFeeding:'Voeding',navMore:'Meer',navPrivate:'Privé'},
+ de:{appTitle:'Malawi Aquarium',dashboard:'Übersicht',fish:'Fische',grossVolume:'Bruttovolumen',aquarium:'Aquarium',stock:'Fischbestand',lastWater:'Letzte Wasserwerte',myAquarium:'⚙️ Mein Aquarium',profileIntro:'Passe diese Angaben für dein eigenes Aquarium an. Sie werden nur auf diesem Gerät gespeichert.',aquariumName:'Aquarienname',length:'Länge cm',width:'Breite cm',height:'Höhe cm',liters:'Volumen Liter',fishCount:'Anzahl Fische',aquariumType:'Aquariumtyp',saveAquarium:'💾 Aquariendaten speichern',language:'Sprache',saved:'Gespeichert ✓',navHome:'Start',navFish:'Fische',navWater:'Wasser',navMaintenance:'Pflege',navFeeding:'Fütterung',navMore:'Mehr',navPrivate:'Privat'},
+ en:{appTitle:'Malawi Aquarium',dashboard:'Dashboard',fish:'Fish',grossVolume:'Gross volume',aquarium:'Aquarium',stock:'Fish stock',lastWater:'Latest water test',myAquarium:'⚙️ My aquarium',profileIntro:'Adjust these details for your own aquarium. They are stored only on this device.',aquariumName:'Aquarium name',length:'Length cm',width:'Width cm',height:'Height cm',liters:'Volume liters',fishCount:'Number of fish',aquariumType:'Aquarium type',saveAquarium:'💾 Save aquarium details',language:'Language',saved:'Saved ✓',navHome:'Home',navFish:'Fish',navWater:'Water',navMaintenance:'Maintenance',navFeeding:'Feeding',navMore:'More',navPrivate:'Private'}
+};
+function applyLanguage(lang){localStorage.setItem(LANG_KEY,lang); const d=I18N[lang]||I18N.nl; document.documentElement.lang=lang; document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(d[k])el.textContent=d[k]}); const navKeys=['navHome','navFish','navWater','navMaintenance','navFeeding','navMore','navPrivate']; document.querySelectorAll('nav button').forEach((b,i)=>{const k=navKeys[i];if(k&&d[k]){const br=b.querySelector('br'); if(br){br.nextSibling && (br.nextSibling.textContent=d[k]);} else b.textContent=d[k]}}); document.getElementById('headerSub').textContent=(getProfile().name|| (lang==='de'?'Mein Aquarium':lang==='en'?'My aquarium':'Mijn aquarium')); }
+function getProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}')}catch(e){return {}}}
+function loadAquariumProfile(){const p=getProfile(); const vals={profileName:p.name||'',profileL:p.l||'',profileW:p.w||'',profileH:p.h||'',profileLiters:p.liters||'',profileFish:p.fish||'',profileType:p.type||''}; Object.entries(vals).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.value=v}); updateDashboard();}
+function saveAquariumProfile(){const p={name:profileName.value.trim(),l:profileL.value,w:profileW.value,h:profileH.value,liters:profileLiters.value,fish:profileFish.value,type:profileType.value.trim()};localStorage.setItem(PROFILE_KEY,JSON.stringify(p));updateDashboard();const lang=localStorage.getItem(LANG_KEY)||'nl';alert(I18N[lang].saved);}
+function updateDashboard(){const p=getProfile();if(p.name)document.getElementById('headerSub').textContent=p.name; if(p.fish)document.getElementById('dashFishCount').textContent=p.fish; if(p.liters)document.getElementById('dashLiters').textContent=p.liters+' L'; if(p.l||p.w||p.h)document.getElementById('dashDimensions').textContent=[p.l,p.w,p.h].filter(Boolean).join(' × ')+' cm';}
+document.addEventListener('DOMContentLoaded',()=>{const lang=localStorage.getItem(LANG_KEY)||'nl';document.getElementById('languageSelect').value=lang;document.getElementById('languageSelect').addEventListener('change',e=>applyLanguage(e.target.value));loadAquariumProfile();applyLanguage(lang);});
+</script>
 <script>
 const get=(k,d=[])=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
 const set=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
