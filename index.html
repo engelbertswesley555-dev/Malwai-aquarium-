@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#071b2b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Malawi Aquarium</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#071b2b;color:#eef7ff;font-family:system-ui,-apple-system,sans-serif}
@@ -98,6 +100,7 @@ foodHistory.innerHTML=f.length?f.slice(0,10).map(x=>`<div class="item">${x.name}
 allHistory.innerHTML=[...e.map(x=>`<div class="item">${x.name}<br><small>${x.date}</small></div>`),...f.map(x=>`<div class="item">Voeding: ${x.name}<br><small>${x.date}</small></div>`)].slice(0,20).join('')||'Nog geen gebeurtenissen.';
 }
 render();
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js")); }
 </script>
 </body>
 </html>
