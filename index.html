@@ -21,7 +21,21 @@ nav button{background:transparent;padding:8px 5px;font-size:11px;opacity:.75}nav
 section{display:none}section.active{display:block}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .item{padding:12px 0;border-bottom:1px solid #20445a}.item:last-child{border:0}
 small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
+.page{display:none}.page.active{display:block}
 </style>
+
+<style>
+.photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.private-photo{position:relative;border-radius:14px;overflow:hidden;background:#10283b;border:1px solid rgba(255,255,255,.08)}
+.private-photo img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.private-photo .photo-actions{padding:8px;display:flex;gap:8px;align-items:center}
+.private-photo .photo-caption{width:100%;box-sizing:border-box;background:transparent;color:inherit;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px}
+.photo-delete{border:0;border-radius:8px;padding:7px 9px}
+.primary-btn{display:inline-block;cursor:pointer}
+.warning-card{border:1px solid rgba(255,190,70,.25)}
+.page{display:none}.page.active{display:block}
+</style>
+
 </head>
 <body>
 <header><h1>🐠 Malawi Aquarium</h1><p class="sub">Mijn aquarium · ±450 liter</p></header>
@@ -73,6 +87,36 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 <div class="card"><b>📸 Foto's & notities</b><p class="muted">Deze functie kunnen we in de volgende versie uitbreiden met foto's per vis.</p></div>
 <div class="card"><b>📊 Geschiedenis</b><div id="allHistory" class="muted">Nog geen gebeurtenissen.</div></div>
 </section>
+
+<section id="page-private" class="page">
+  <div class="section-head">
+    <div>
+      <h2>Mijn privé</h2>
+      <p class="muted">Alleen op deze telefoon opgeslagen.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📸 Privéfoto's</h3>
+    <p class="muted">Foto's die je hier toevoegt worden lokaal in deze browser opgeslagen. Ze worden niet naar GitHub of naar deze website geüpload.</p>
+    <label class="primary-btn" for="privatePhotoInput">Foto toevoegen</label>
+    <input id="privatePhotoInput" type="file" accept="image/*" multiple hidden>
+    <div id="privatePhotos" class="photo-grid"></div>
+    <p id="privatePhotoEmpty" class="muted">Nog geen privéfoto's.</p>
+  </div>
+
+  <div class="card">
+    <h3>📝 Privénotitie</h3>
+    <textarea id="privateNote" rows="7" placeholder="Bijvoorbeeld: gedrag, aankoop, bijzondere observatie..."></textarea>
+    <button class="primary-btn" id="savePrivateNote">Notitie opslaan</button>
+    <p id="privateSaved" class="muted"></p>
+  </div>
+
+  <div class="card warning-card">
+    <h3>🔐 Belangrijk</h3>
+    <p class="muted">Dit gedeelte is lokaal opgeslagen, maar is geen wachtwoordbeveiliging. Iemand die jouw ontgrendelde telefoon gebruikt, kan de privégegevens openen. Wis je browsergegevens, dan kunnen de lokaal opgeslagen foto's en notities verloren gaan.</p>
+  </div>
+</section>
 </main>
 
 <nav>
@@ -82,7 +126,11 @@ small{opacity:.7}.ok{color:#80d8a4}.muted{opacity:.7}
 <button onclick="show('maintenance',this)">🧹<br>Onderhoud</button>
 <button onclick="show('feeding',this)">🍽️<br>Voeding</button>
 <button onclick="show('more',this)">➕<br>Meer</button>
+<button onclick="show('private',this)">🔒<br>Privé</button>
 </nav>
+
+
+
 
 <script>
 const get=(k,d=[])=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
@@ -102,5 +150,148 @@ allHistory.innerHTML=[...e.map(x=>`<div class="item">${x.name}<br><small>${x.dat
 render();
 if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js")); }
 </script>
+
+<script>
+(() => {
+  const DB_NAME = 'malawi-aquarium-private';
+  const DB_VERSION = 1;
+  const STORE = 'photos';
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(STORE)) {
+          req.result.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function getAllPhotos() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function addPhoto(file) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).add({
+        file,
+        name: file.name,
+        caption: '',
+        created: new Date().toISOString()
+      });
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function deletePhoto(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).delete(id);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function updateCaption(id, caption) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      const store = tx.objectStore(STORE);
+      const get = store.get(id);
+      get.onsuccess = () => {
+        const item = get.result;
+        if (!item) return;
+        item.caption = caption;
+        store.put(item);
+      };
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function renderPhotos() {
+    const grid = document.getElementById('privatePhotos');
+    const empty = document.getElementById('privatePhotoEmpty');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const photos = await getAllPhotos();
+    empty.style.display = photos.length ? 'none' : 'block';
+
+    photos.sort((a,b) => b.id - a.id).forEach(item => {
+      const wrap = document.createElement('div');
+      wrap.className = 'private-photo';
+
+      const img = document.createElement('img');
+      img.alt = item.name || 'Privéfoto';
+      img.src = URL.createObjectURL(item.file);
+
+      const actions = document.createElement('div');
+      actions.className = 'photo-actions';
+
+      const input = document.createElement('input');
+      input.className = 'photo-caption';
+      input.placeholder = 'Bijschrift';
+      input.value = item.caption || '';
+      input.addEventListener('change', () => updateCaption(item.id, input.value));
+
+      const del = document.createElement('button');
+      del.className = 'photo-delete';
+      del.textContent = '🗑️';
+      del.title = 'Foto verwijderen';
+      del.addEventListener('click', async () => {
+        if (confirm('Deze privéfoto verwijderen?')) {
+          await deletePhoto(item.id);
+          renderPhotos();
+        }
+      });
+
+      actions.appendChild(input);
+      actions.appendChild(del);
+      wrap.appendChild(img);
+      wrap.appendChild(actions);
+      grid.appendChild(wrap);
+    });
+  }
+
+  const input = document.getElementById('privatePhotoInput');
+  if (input) {
+    input.addEventListener('change', async (e) => {
+      for (const file of Array.from(e.target.files || [])) {
+        if (file.type.startsWith('image/')) await addPhoto(file);
+      }
+      e.target.value = '';
+      renderPhotos();
+    });
+  }
+
+  const note = document.getElementById('privateNote');
+  const saveNote = document.getElementById('savePrivateNote');
+  const saved = document.getElementById('privateSaved');
+  if (note) note.value = localStorage.getItem('privateNote') || '';
+  if (saveNote) {
+    saveNote.addEventListener('click', () => {
+      localStorage.setItem('privateNote', note.value);
+      saved.textContent = 'Privénotitie opgeslagen op deze telefoon.';
+      setTimeout(() => saved.textContent = '', 2500);
+    });
+  }
+
+  renderPhotos();
+})();
+</script>
+
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE = "malawi-aquarium-v1";
+const CACHE = "malawi-aquarium-v3";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", event => {
