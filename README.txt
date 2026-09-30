@@ -6,3 +6,6 @@ Malawi Aquarium PWA v7
 - Bestaande gebruikers van v6 met een opgeslagen aquariumprofiel krijgen hun huidige drie vissoorten eenmalig lokaal overgezet.
 - Privéfoto's, privénotities en onderhoudsnotities blijven lokaal.
 - Taal: Nederlands, Deutsch, English.
+
+
+Versie 8: nieuwe gebruikers starten met een lege vislijst. Bestaande visgegevens op een apparaat blijven behouden.
